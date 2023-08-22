@@ -1,0 +1,95 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.2'
+    id 'io.spring.dependency-management' version '1.1.2'
+    id "org.openapi.generator" version "6.6.0"
+}
+
+group = 'com.dale'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    all*.exclude module: 'logback-classic'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/open-api-client/src/main/java")
+        }
+    }
+    integration {
+        java {
+            srcDirs = ["src/integration/java",
+                     //  "$buildDir/open-api-client/src/main/java",
+                      // "build/open-api-client/src/main/java",
+                       "src/integration/resources/open-api-client/src/main/java"
+
+            ]
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    integrationImplementation 'org.springframework.boot:spring-boot-starter-web'
+    integrationImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    integrationImplementation('org.springframework.boot:spring-boot-starter-test')
+    integrationImplementation('org.openapitools:openapi-generator-maven-plugin:6.6.0')
+}
+
+task openApiGeneratorTest(type: Test) {
+    useJUnitPlatform {
+        includeTags "openApiGeneratorTest"
+    }
+}
+
+task buildJavaRestTemplateSdk(type: GenerateTask) {
+    generatorName = "java"
+    library = "resttemplate"
+    inputSpec = "$rootDir/build/api-docs.json".toString()
+    outputDir = "$rootDir/src/integration/resources/open-api-client"
+    apiPackage = "com.dale.api"
+    invokerPackage = "com.dale"
+    modelPackage = "com.dale"
+    configOptions = [
+            dateLibrary    : "java8",
+            openApiNullable: "false"
+    ]
+    groupId = 'com.dale'
+    id = 'client'
+    skipValidateSpec = true
+    logToStderr = true
+    generateAliasAsModel = false
+    enablePostProcessFile = false
+}
+
+
+

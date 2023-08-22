@@ -38,13 +38,10 @@ sourceSets {
             srcDir("$buildDir/open-api-client/src/main/java")
         }
     }
-    integration {
+    integrationTest {
         java {
-            srcDirs = ["src/integration/java",
-                     //  "$buildDir/open-api-client/src/main/java",
-                      // "build/open-api-client/src/main/java",
-                       "src/integration/resources/open-api-client/src/main/java"
-
+            srcDirs = ["src/integrationTest/java",
+                       "src/integrationTest/resources/open-api-client/src/main/java"
             ]
         }
     }
@@ -59,10 +56,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    integrationImplementation 'org.springframework.boot:spring-boot-starter-web'
-    integrationImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
-    integrationImplementation('org.springframework.boot:spring-boot-starter-test')
-    integrationImplementation('org.openapitools:openapi-generator-maven-plugin:6.6.0')
+    integrationTestImplementation 'org.springframework.boot:spring-boot-starter-web'
+    integrationTestImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    integrationTestImplementation('org.springframework.boot:spring-boot-starter-test')
+    integrationTestImplementation('org.openapitools:openapi-generator-maven-plugin:6.6.0')
 }
 
 task openApiGeneratorTest(type: Test) {
@@ -71,11 +68,26 @@ task openApiGeneratorTest(type: Test) {
     }
 }
 
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed"
+    }
+}
+
 task buildJavaRestTemplateSdk(type: GenerateTask) {
     generatorName = "java"
     library = "resttemplate"
     inputSpec = "$rootDir/build/api-docs.json".toString()
-    outputDir = "$rootDir/src/integration/resources/open-api-client"
+    outputDir = "$rootDir/src/integrationTest/resources/open-api-client"
     apiPackage = "com.dale.api"
     invokerPackage = "com.dale"
     modelPackage = "com.dale"

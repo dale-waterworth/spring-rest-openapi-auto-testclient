@@ -22,7 +22,7 @@ class UserControllerTest {
     @BeforeAll
     public static void beforeAll() {
         var apiClient = new ApiClient();
-        apiClient.setBasePath(String.format("http://%s:%o", host, port));
+        apiClient.setBasePath(String.format("http://%s:%s", host, port));
         userController = new UserControllerApi(apiClient);
     }
 

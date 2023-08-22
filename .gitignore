@@ -34,3 +34,4 @@ bin/
 /src/main/resources/
 /.idea/
 
+/src/integrationTest/resources/
